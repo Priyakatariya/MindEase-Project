@@ -1,152 +1,356 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase'; 
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore'; 
-import { 
-  ChevronDown, HeartPulse, MessageSquare, Activity, 
-  Headphones, Users, Calendar, PhoneCall, 
-  UserCircle, LogOut, LayoutDashboard, BookOpen
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+import {
+  Menu, X, HeartPulse, LogOut,
+  LayoutDashboard, Home as HomeIcon,
+  Info, HelpCircle, Phone, AlertCircle, Users, MessageSquare,
+  Activity, BookOpen, UserCircle, Calendar, Bot
 } from 'lucide-react';
 
-const Navbar: React.FC = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false); 
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+interface UserData {
+  email: string;
+  role: 'student' | 'admin';
+  displayName?: string;
+}
 
+interface NavLink {
+  to: string;
+  label: string;
+  icon: React.ReactElement;
+  highlight?: boolean;
+}
+
+const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Check Firebase authentication status
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
-        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
+        try {
+          // Get user role from Firestore
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          let userRole: 'student' | 'admin' = 'student';
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            userRole = userData.role === 'admin' ? 'admin' : 'student';
+          }
+
+          setUser({
+            email: currentUser.email || '',
+            role: userRole,
+            displayName: currentUser.displayName || undefined
+          });
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setUser({
+            email: currentUser.email || '',
+            role: 'student'
+          });
         }
+      } else {
+        setUser(null);
       }
+      setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
-  const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsProfileDropdownOpen(false);
+  }, [location.pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    if (isProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileDropdownOpen]);
+
+  const handleLogout = async () => {
     try {
       await signOut(auth);
-      setShowProfileMenu(false);
-      setIsAdmin(false);
+      setUser(null);
+      setIsMobileMenuOpen(false);
+      setIsProfileDropdownOpen(false);
       navigate('/login');
     } catch (error) {
-      alert("Logout failed!");
+      console.error('Logout error:', error);
+      alert('Logout failed. Please try again.');
     }
   };
 
-  return (
-    <nav className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-[1000] px-6 py-3">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        
-        {/* LOGO */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="bg-[#1e3a8a] p-2 rounded-xl group-hover:rotate-12 transition-transform">
-            <HeartPulse className="text-white" size={24} />
+  const handleDashboardClick = () => {
+    const dashboardRoute = user?.role === 'admin' ? '/admin' : '/dashboard';
+    navigate(dashboardRoute);
+    setIsProfileDropdownOpen(false);
+  };
+
+  const isActive = (path: string) => location.pathname === path;
+
+  // Navigation links based on authentication state
+  const guestLinks: NavLink[] = [
+    { to: '/', label: 'Home', icon: <HomeIcon size={18} /> },
+    { to: '/about', label: 'About', icon: <Info size={18} /> },
+    { to: '/faq', label: 'FAQ', icon: <HelpCircle size={18} /> },
+    { to: '/contact', label: 'Contact', icon: <Phone size={18} /> },
+    { to: '/emergency', label: 'Emergency', icon: <AlertCircle size={18} />, highlight: true },
+  ];
+
+  const loggedInLinks: NavLink[] = [
+    { to: '/', label: 'Home', icon: <HomeIcon size={18} /> },
+    { to: '/mentor', label: 'Mentor', icon: <Users size={18} /> },
+    { to: '/resources', label: 'Resources', icon: <BookOpen size={18} /> },
+    { to: '/mood', label: 'Mood Tracker', icon: <Activity size={18} /> },
+    { to: '/community', label: 'Community', icon: <MessageSquare size={18} /> },
+    { to: '/appointment', label: 'Appointment', icon: <Calendar size={18} /> },
+    { to: '/chatbot', label: 'Chatbot', icon: <Bot size={18} /> },
+  ];
+
+  const navigationLinks = user ? loggedInLinks : guestLinks;
+
+  // Show loading state briefly
+  if (loading) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-2 rounded-xl shadow-md">
+                <HeartPulse className="text-white" size={24} />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                MindEase
+              </span>
+            </div>
           </div>
-          <span className="text-xl font-bold tracking-tight text-gray-900">
-            MindEase <span className="text-[#1e3a8a] font-light">| Wellness</span>
-          </span>
-        </Link>
+        </div>
+      </nav>
+    );
+  }
 
-        {/* MAIN MENU */}
-        <ul className="hidden lg:flex items-center gap-2 font-medium text-gray-600">
-          <li><Link to="/" className="px-4 py-2 rounded-lg hover:bg-blue-50 hover:text-[#1e3a8a] transition">Home</Link></li>
+  return (
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-white/95 backdrop-blur-md shadow-lg'
+        : 'bg-white border-b border-gray-100'
+        }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
 
-          <li className="relative group">
-            <button className="flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-blue-50 group-hover:text-[#1e3a8a] transition">
-              Support <ChevronDown size={16} className="group-hover:rotate-180 transition-transform" />
-            </button>
-            <div className="absolute top-full left-0 w-64 bg-white shadow-2xl rounded-2xl p-2 border border-gray-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
-              <DropdownLink to="/chatbot" icon={<MessageSquare size={18}/>} title="AI Chatbot" subtitle="Instant help" />
-              <DropdownLink to="/mood" icon={<Activity size={18}/>} title="Mood Tracker" subtitle="Track your vibes" />
-              <DropdownLink to="/sessions" icon={<Headphones size={18}/>} title="Guided Sessions" subtitle="Meditation" />
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 group"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-2 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-md">
+              <HeartPulse className="text-white" size={24} />
             </div>
-          </li>
-
-          <li className="relative group">
-            <button className="flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-purple-50 group-hover:text-purple-600 transition">
-              Community <ChevronDown size={16} className="group-hover:rotate-180 transition-transform" />
-            </button>
-            <div className="absolute top-full left-0 w-64 bg-white shadow-2xl rounded-2xl p-2 border border-gray-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
-              <DropdownLink to="/stories" icon={<Users size={18}/>} title="Student Stories" subtitle="You are not alone" />
-              <DropdownLink to="/events" icon={<Calendar size={18}/>} title="Workshops" subtitle="Join events" />
+            <div className="hidden sm:block">
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                MindEase
+              </span>
+              <span className="text-xs text-gray-500 block -mt-1">Mental Wellness</span>
             </div>
-          </li>
+          </Link>
 
-          <li><Link to="/mentors" className="px-4 py-2 rounded-lg hover:bg-emerald-50 hover:text-emerald-600 transition">Mentors</Link></li>
-          <li><Link to="/about" className="px-4 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition">About Us</Link></li>
-        </ul>
-
-        {/* AUTH SECTION */}
-        <div className="flex items-center gap-4">
-          <button onClick={() => alert("Connecting to NITK Helplines...")} className="hidden sm:flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full font-bold animate-pulse text-xs">
-             <PhoneCall size={14} /> SOS
-          </button>
-
-          {!user ? (
-            <div className="flex items-center gap-2 border-l pl-4 border-gray-100">
-              <Link to="/login" className="text-sm font-bold text-gray-500 hover:text-[#1e3a8a] px-3 py-2">Login</Link>
-              <Link to="/signup" className="text-sm font-bold text-[#1e3a8a] bg-blue-50 px-4 py-2 rounded-xl hover:bg-[#1e3a8a] hover:text-white transition-all">Signup</Link>
-            </div>
-          ) : (
-            <div className="relative border-l pl-4">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowProfileMenu(!showProfileMenu);
-                }}
-                className="flex items-center gap-2 focus:outline-none hover:bg-gray-50 p-1 rounded-xl transition"
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${link.highlight
+                  ? 'bg-red-50 text-red-600 hover:bg-red-100 animate-pulse'
+                  : isActive(link.to)
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
+                  }`}
               >
-                <div className="text-right hidden sm:block">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase leading-none">
-                    {isAdmin ? 'Administrator' : 'Student Member'}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">{user.displayName || 'Student'}</p>
-                </div>
-                <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md ${isAdmin ? 'bg-indigo-600' : 'bg-blue-600'}`}>
-                  <UserCircle size={24} />
-                </div>
-              </button>
+                {link.icon}
+                <span className="text-sm">{link.label}</span>
+              </Link>
+            ))}
+          </div>
 
-              {showProfileMenu && (
-                <>
-                  <div className="fixed inset-0 z-[1001]" onClick={() => setShowProfileMenu(false)}></div>
-                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-2xl rounded-2xl p-2 border border-gray-100 z-[1002] animate-in fade-in zoom-in-95 duration-200">
-                    
-                    {/* 🟢 DASHBOARD LOGIC UPDATED */}
-                    {isAdmin ? (
-                      <button 
-                        onClick={() => { navigate('/admin'); setShowProfileMenu(false); }}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 text-sm font-bold text-gray-700 transition"
-                      >
-                        <LayoutDashboard size={18} className="text-blue-600" /> Admin Panel
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => { navigate('/dashboard'); setShowProfileMenu(false); }}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 text-sm font-bold text-gray-700 transition"
-                      >
-                        <LayoutDashboard size={18} className="text-emerald-600" /> My Dashboard
-                      </button>
-                    )}
+          {/* Auth Buttons / Profile Dropdown */}
+          <div className="hidden lg:flex items-center gap-3">
+            {!user ? (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Signup
+                </Link>
+              </>
+            ) : (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center gap-3 pl-3 border-l border-gray-200 hover:opacity-80 transition-opacity"
+                >
+                  <div className="text-right">
+                    <p className="text-xs font-semibold text-gray-500 uppercase">
+                      {user.role === 'admin' ? 'Administrator' : 'Student'}
+                    </p>
+                    <p className="text-sm font-bold text-gray-800">
+                      {user.displayName || user.email.split('@')[0]}
+                    </p>
+                  </div>
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md ${user.role === 'admin' ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-gradient-to-br from-blue-600 to-blue-800'
+                    }`}>
+                    <UserCircle size={24} />
+                  </div>
+                </button>
 
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 text-sm font-bold transition mt-1 border-t pt-1"
+                {/* Profile Dropdown Menu */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button
+                      onClick={handleDashboardClick}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                     >
-                      <LogOut size={18} /> Logout
+                      <LayoutDashboard size={18} />
+                      <span className="font-medium">Dashboard</span>
+                    </button>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={18} />
+                      <span className="font-medium">Logout</span>
                     </button>
                   </div>
-                </>
-              )}
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+          }`}
+      >
+        <div className="px-4 pt-2 pb-4 bg-gray-50 border-t border-gray-200 shadow-inner">
+          {/* Mobile Navigation Links */}
+          <div className="space-y-1 mb-4">
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${link.highlight
+                  ? 'bg-red-50 text-red-600 border border-red-200'
+                  : isActive(link.to)
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-white hover:shadow-sm'
+                  }`}
+              >
+                {link.icon}
+                <span>{link.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Auth Section */}
+          {!user ? (
+            <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
+              <Link
+                to="/login"
+                className="w-full px-4 py-3 text-center font-semibold text-gray-700 bg-white rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="w-full px-4 py-3 text-center font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md"
+              >
+                Signup
+              </Link>
+            </div>
+          ) : (
+            <div className="pt-4 border-t border-gray-200 space-y-2">
+              <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-lg">
+                <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white shadow-md ${user.role === 'admin' ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-gradient-to-br from-blue-600 to-blue-800'
+                  }`}>
+                  <UserCircle size={28} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase">
+                    {user.role === 'admin' ? 'Administrator' : 'Student'}
+                  </p>
+                  <p className="text-sm font-bold text-gray-800">
+                    {user.displayName || user.email}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleDashboardClick}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 font-semibold transition-colors"
+              >
+                <LayoutDashboard size={20} />
+                Dashboard
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 font-semibold transition-colors"
+              >
+                <LogOut size={20} />
+                Logout
+              </button>
             </div>
           )}
         </div>
@@ -154,15 +358,5 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
-
-const DropdownLink = ({ to, icon, title, subtitle }: any) => (
-  <Link to={to} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
-    <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white text-gray-500 group-hover:text-[#1e3a8a]">{icon}</div>
-    <div>
-      <div className="text-sm font-bold text-gray-900">{title}</div>
-      <div className="text-[10px] text-gray-400 uppercase tracking-wide">{subtitle}</div>
-    </div>
-  </Link>
-);
 
 export default Navbar;

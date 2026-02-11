@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase'; // Path check kar lena
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import { 
-  MessageSquare, Heart, Share2, Clock, 
-  Sparkles, Quote, Bookmark 
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import {
+  MessageSquare, Heart, Share2, Clock,
+  Sparkles, Quote, Bookmark
 } from 'lucide-react';
 
 const Blog: React.FC = () => {
@@ -11,21 +11,31 @@ const Blog: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Simplified query - orderBy with where requires composite index
+    // First try with just where clause
     const q = query(
       collection(db, "articles"),
-      where("status", "==", "approved"),
-      orderBy("createdAt", "desc")
+      where("status", "==", "approved")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const liveStories = snapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
+      const liveStories = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
       }));
-      setStories(liveStories);
+
+      // Sort by createdAt in JavaScript instead of Firestore
+      const sortedStories = liveStories.sort((a: any, b: any) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return b.createdAt.toMillis() - a.createdAt.toMillis();
+      });
+
+      setStories(sortedStories);
       setLoading(false);
+      console.log("Fetched stories:", sortedStories.length);
     }, (error) => {
       console.error("Firestore Error:", error);
+      console.error("Error details:", error.message);
       setLoading(false);
     });
 
@@ -58,15 +68,15 @@ const Blog: React.FC = () => {
           </div>
         ) : stories.length === 0 ? (
           <div className="bg-white p-20 rounded-[3rem] text-center shadow-xl border-2 border-dashed border-gray-100">
-             <Bookmark className="mx-auto text-gray-200 mb-4" size={50} />
-             <h3 className="text-xl font-bold text-gray-800">No Stories Yet</h3>
-             <p className="text-gray-400 mt-2">Approved stories will appear here.</p>
+            <Bookmark className="mx-auto text-gray-200 mb-4" size={50} />
+            <h3 className="text-xl font-bold text-gray-800">No Stories Yet</h3>
+            <p className="text-gray-400 mt-2">Approved stories will appear here.</p>
           </div>
         ) : (
           <div className="space-y-8">
             {stories.map((story) => (
-              <article 
-                key={story.id} 
+              <article
+                key={story.id}
                 className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-white hover:border-blue-100 transition-all"
               >
                 {/* Header: Author & Time */}
