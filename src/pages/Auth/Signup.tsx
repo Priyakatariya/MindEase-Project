@@ -39,7 +39,15 @@ const Signup: React.FC = () => {
       alert(`Welcome to MindEase, ${formData.name}!`);
       navigate('/dashboard');
     } catch (error: any) {
-      alert(error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        alert('⚠️ This email is already registered. Please login instead.');
+      } else if (error.code === 'auth/weak-password') {
+        alert('⚠️ Password too weak. Please use at least 6 characters.');
+      } else if (error.code === 'auth/invalid-email') {
+        alert('⚠️ Invalid email address. Please check and try again.');
+      } else {
+        alert('Something went wrong: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -60,9 +68,8 @@ const Signup: React.FC = () => {
               key={type}
               type="button"
               onClick={() => setUserType(type)}
-              className={`flex-1 py-2 text-sm font-bold rounded-xl capitalize transition-all ${
-                userType === type ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-gray-400 hover:text-gray-600'
-              }`}
+              className={`flex-1 py-2 text-sm font-bold rounded-xl capitalize transition-all ${userType === type ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                }`}
             >
               {type}
             </button>
@@ -71,18 +78,18 @@ const Signup: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input icon={<UserPlus size={18}/>} placeholder="Full Name" 
-              onChange={(e: any) => setFormData({...formData, name: e.target.value})} />
-            <Input icon={<Mail size={18}/>} type="email" placeholder="Email ID" 
-              onChange={(e: any) => setFormData({...formData, email: e.target.value})} />
+            <Input icon={<UserPlus size={18} />} placeholder="Full Name"
+              onChange={(e: any) => setFormData({ ...formData, name: e.target.value })} />
+            <Input icon={<Mail size={18} />} type="email" placeholder="Email ID"
+              onChange={(e: any) => setFormData({ ...formData, email: e.target.value })} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <select 
+              <select
                 required className="w-full pl-12 pr-4 py-4 bg-gray-50 rounded-2xl outline-none appearance-none text-sm"
-                onChange={(e) => setFormData({...formData, department: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
               >
                 <option value="">Department</option>
                 <option value="CSE">Computer Science</option>
@@ -96,17 +103,17 @@ const Signup: React.FC = () => {
             <div className="relative">
               <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               {userType === 'professor' ? (
-                <input 
+                <input
                   placeholder="Designation (e.g. HOD, AP)"
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 rounded-2xl outline-none text-sm"
-                  onChange={(e) => setFormData({...formData, designation: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
                   required
                 />
               ) : (
-                <input 
+                <input
                   placeholder={userType === 'student' ? "Year (1st, 2nd...)" : "Batch (e.g. 2018)"}
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 rounded-2xl outline-none text-sm"
-                  onChange={(e) => setFormData({...formData, yearOrBatch: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, yearOrBatch: e.target.value })}
                   required
                 />
               )}
@@ -114,12 +121,12 @@ const Signup: React.FC = () => {
           </div>
 
           {userType === 'student' && (
-            <Input icon={<BookOpen size={18}/>} placeholder="Roll Number" 
-              onChange={(e: any) => setFormData({...formData, rollNo: e.target.value})} />
+            <Input icon={<BookOpen size={18} />} placeholder="Roll Number"
+              onChange={(e: any) => setFormData({ ...formData, rollNo: e.target.value })} />
           )}
 
-          <Input icon={<Lock size={18}/>} type="password" placeholder="Password" 
-            onChange={(e: any) => setFormData({...formData, password: e.target.value})} />
+          <Input icon={<Lock size={18} />} type="password" placeholder="Password"
+            onChange={(e: any) => setFormData({ ...formData, password: e.target.value })} />
 
           <button disabled={loading} className="w-full bg-[#1e3a8a] text-white py-4 rounded-2xl font-bold hover:shadow-lg transition-all active:scale-95 disabled:opacity-50">
             {loading ? 'Creating Profile...' : 'Complete Registration'}

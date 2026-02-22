@@ -21,7 +21,7 @@ const Login: React.FC = () => {
     } catch (error: any) {
       console.error(error.code);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        alert("Email ya Password galat hai. Dobara check karein.");
+        alert("password wrong");
       } else {
         alert("Kuch galat hua: " + error.message);
       }
