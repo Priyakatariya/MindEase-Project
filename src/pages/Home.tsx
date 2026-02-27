@@ -2,9 +2,66 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, BarChart3, Users, Play, Heart, ShieldCheck, ArrowRight, Brain, Calendar, Video, BookOpen, Star, ChevronDown } from 'lucide-react';
 
+type Faq = { question: string; answer: string };
+type FaqCategory = { title: string; faqs: Faq[] };
+
+const FAQ_DATA: FaqCategory[] = [
+  {
+    title: "GENERAL",
+    faqs: [
+  { question: "Is my information really anonymous?", answer: "Yes. You are never required to share personal identity. All chats are private and encrypted." },
+  { question: "How do I book a counseling session?", answer: "Go to Appointment page → choose slot → confirmation email is sent instantly." },
+  { question: "Is the AI chatbot available 24/7?", answer: "Yes. The AI support is available anytime you need help." },
+  { question: "Do I need an account?", answer: "No, most features work anonymously." },
+  { question: "Can I use this on mobile?", answer: "Yes, it works on phone, tablet and laptop." },
+  { question: "Who is this platform for?", answer: "Primarily students, but anyone needing emotional support can use it." },
+  { question: "What if I don’t know what I feel?", answer: "The chatbot helps identify emotions step-by-step." }
+],
+  },
+  {
+    title: "MEDITATION & MINDFULNESS",
+    faqs: [
+  { question: "I’ve never meditated before. Is that okay?", answer: "Yes! Guided sessions are beginner-friendly." },
+  { question: "How long should I meditate?", answer: "Start 3-5 minutes and slowly increase." },
+  { question: "Do I need silence?", answer: "No. Normal room environment works fine." },
+  { question: "What if my mind keeps wandering?", answer: "That’s normal — gently return to breathing." },
+  { question: "Best time to meditate?", answer: "Morning or before sleep works best." },
+  { question: "Can meditation improve focus?", answer: "Yes, regular practice boosts concentration." },
+  { question: "Guided or silent meditation?", answer: "Guided is best for beginners." }
+],
+  },
+  {
+    title: "STRESS & ANXIETY",
+    faqs: [
+  { question: "Can this help with panic attacks?", answer: "Yes. Grounding exercises calm your nervous system." },
+  { question: "Does mood tracking really help?", answer: "Yes. Recognizing patterns improves emotional control." },
+  { question: "What to do during anxiety spike?", answer: "Use breathing and grounding tools immediately." },
+  { question: "Why am I stressed for no reason?", answer: "Academic pressure and overthinking often cause hidden stress." },
+  { question: "Does sleep affect anxiety?", answer: "Yes — poor sleep increases anxiety significantly." },
+  { question: "How often track mood?", answer: "2–3 times daily works best." },
+  { question: "Is college overwhelm normal?", answer: "Yes — many students experience it." }
+],
+  },
+  {
+    title: "PRIVACY & SAFETY",
+    faqs: [
+  { question: "Are my conversations stored?", answer: "Encrypted and anonymized only." },
+  { question: "Can others see my stories?", answer: "Only if you choose to share anonymously." },
+  { question: "Do counselors know my identity?", answer: "No unless you share it yourself." },
+  { question: "Is my data sold?", answer: "Never." },
+  { question: "Can admins read chats?", answer: "No human reads private conversations." },
+  { question: "Can I delete my data?", answer: "Yes anytime." },
+  { question: "Safe for sensitive topics?", answer: "Yes — designed as a safe space." }
+],
+  },
+];
+
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  
 
   return (
     <div className="min-h-screen bg-[#FDFDFF]">
@@ -170,55 +227,66 @@ const Home: React.FC = () => {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-20 px-6 bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-              <MessageCircle size={16} />
-              FAQ
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Everything you need to know about MindEase
-            </p>
-          </div>
+<section className="py-20 px-6 bg-violet-50">
+  <div className="max-w-4xl mx-auto">
+    <div className="text-center mb-16">
+      <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+        <MessageCircle size={16} />
+        FAQ
+      </div>
 
-          <div className="space-y-4">
-            <FaqItem
-              question="Is my information really anonymous?"
-              answer="Yes! We prioritize your privacy. All conversations are encrypted, and you can use the platform without revealing your identity."
-              isOpen={openFaq === 0}
-              onClick={() => setOpenFaq(openFaq === 0 ? null : 0)}
-            />
-            <FaqItem
-              question="How do I book a counseling session?"
-              answer="Simply go to the Appointment page, fill out the form with your preferred time, and our team will confirm your booking via email."
-              isOpen={openFaq === 1}
-              onClick={() => setOpenFaq(openFaq === 1 ? null : 1)}
-            />
-            <FaqItem
-              question="Is the AI chatbot available 24/7?"
-              answer="Yes! Our AI chatbot is available round the clock to provide immediate support whenever you need it."
-              isOpen={openFaq === 2}
-              onClick={() => setOpenFaq(openFaq === 2 ? null : 2)}
-            />
-            <FaqItem
-              question="Can I share my story anonymously?"
-              answer="Absolutely! You can share your experiences in the Stories section without revealing your identity. It's a safe space for everyone."
-              isOpen={openFaq === 3}
-              onClick={() => setOpenFaq(openFaq === 3 ? null : 3)}
-            />
-            <FaqItem
-              question="Are the therapy sessions free?"
-              answer="Some sessions are free, while others may have a nominal fee. Check the Sessions page for detailed pricing information."
-              isOpen={openFaq === 4}
-              onClick={() => setOpenFaq(openFaq === 4 ? null : 4)}
-            />
-          </div>
-        </div>
-      </section>
+      <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        Frequently Asked Questions
+      </h2>
+
+      <p className="text-gray-600 text-lg">
+        Everything you need to know about MindEase
+      </p>
+    </div>
+
+    {/* Category Tabs */}
+    <div className="flex flex-wrap justify-center gap-3 mb-12">
+      {FAQ_DATA.map((category, index) => (
+        <button
+          key={index}
+          onClick={() => {
+            setActiveCategory(index);
+            setOpenFaq(null);
+          }}
+          className={`px-5 py-2 rounded-full text-sm font-semibold transition
+          ${
+            activeCategory === index
+              ? "bg-violet-600 text-white shadow-md"
+              : "bg-white text-gray-700 border hover:bg-violet-50"
+          }`}
+        >
+          {category.title}
+        </button>
+      ))}
+    </div>
+
+    {/* Section Title */}
+    <div className="mb-6">
+      <h3 className="text-xl font-bold text-gray-800 tracking-wide">
+        {FAQ_DATA[activeCategory].title}
+      </h3>
+      <div className="h-px bg-gray-300 mt-3"></div>
+    </div>
+
+    {/* Questions */}
+    <div className="space-y-4">
+      {FAQ_DATA[activeCategory].faqs.map((faq, index) => (
+        <FaqItem
+          key={index}
+          question={faq.question}
+          answer={faq.answer}
+          isOpen={openFaq === index}
+          onClick={() => setOpenFaq(openFaq === index ? null : index)}
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* --- CTA SECTION --- */}
       <section className="py-20 px-6">
