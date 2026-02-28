@@ -37,7 +37,9 @@ const Signup: React.FC = () => {
       });
 
       alert(`Welcome to MindEase, ${formData.name}!`);
-      navigate('/dashboard');
+      if (userType === 'professor') navigate('/professor-dashboard');
+      else if (userType === 'alumni') navigate('/alumni-dashboard');
+      else navigate('/dashboard');
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         alert('⚠️ This email is already registered. Please login instead.');

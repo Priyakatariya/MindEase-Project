@@ -24,9 +24,12 @@ import ContactUs from './pages/ContactUs';
 import FAQ from './pages/FAQ';
 import Emergency from './pages/Emergency';
 import Mentor from './pages/Mentor';
+import MentorDetail from './pages/MentorDetail';
 import Resources from './pages/Resources';
 import Appointment from './pages/Appointment';
 import Community from './pages/Community';
+import Team from './pages/Team';
+import AlumniProfessorDashboard from './pages/Dashboard/AlumniProfessorDashboard';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -54,9 +57,11 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/emergency" element={<Emergency />} />
+          <Route path="/team" element={<Team />} />
 
           {/* 🔐 Protected Student Routes */}
           <Route path="/mentor" element={<ProtectedRoute><Mentor /></ProtectedRoute>} />
+          <Route path="/mentor/:id" element={<ProtectedRoute><MentorDetail /></ProtectedRoute>} />
           <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
           <Route path="/appointment" element={<ProtectedRoute><Appointment /></ProtectedRoute>} />
           <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
@@ -68,14 +73,9 @@ const AppContent: React.FC = () => {
           <Route path="/events" element={<ProtectedRoute><EventsAndSessions /></ProtectedRoute>} />
 
           {/* 🆕 Student Dashboard Route */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+          <Route path="/alumni-dashboard" element={<ProtectedRoute><AlumniProfessorDashboard role="alumni" /></ProtectedRoute>} />
+          <Route path="/professor-dashboard" element={<ProtectedRoute><AlumniProfessorDashboard role="professor" /></ProtectedRoute>} />
 
           {/* 👑 Admin Nested Routes with Sidebar Layout */}
           <Route
