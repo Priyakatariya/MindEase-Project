@@ -60,6 +60,7 @@ const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-3">
               {[
+                { text: 'About Us', path: '/about' },
                 { text: 'AI Chatbot', path: '/chatbot' },
                 { text: 'Mood Tracker', path: '/mood' },
                 { text: 'Guided Sessions', path: '/sessions' },

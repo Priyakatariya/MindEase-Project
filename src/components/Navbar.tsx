@@ -10,9 +10,12 @@ import {
   Activity, BookOpen, UserCircle, Calendar, Bot
 } from 'lucide-react';
 
+type UserType = 'student' | 'alumni' | 'professor' | 'admin';
+
 interface UserData {
   email: string;
   role: 'student' | 'admin';
+  userType: UserType;
   displayName?: string;
 }
 
@@ -22,6 +25,24 @@ interface NavLink {
   icon: React.ReactElement;
   highlight?: boolean;
 }
+
+const getRoleLabel = (userType: UserType): string => {
+  switch (userType) {
+    case 'admin': return 'Administrator';
+    case 'professor': return 'Professor';
+    case 'alumni': return 'Alumni';
+    default: return 'Student';
+  }
+};
+
+const getDashboardRoute = (userType: UserType): string => {
+  switch (userType) {
+    case 'admin': return '/admin';
+    case 'professor': return '/professor-dashboard';
+    case 'alumni': return '/alumni-dashboard';
+    default: return '/dashboard';
+  }
+};
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -33,71 +54,61 @@ const Navbar = () => {
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Check Firebase authentication status
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          // Get user role from Firestore
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           let userRole: 'student' | 'admin' = 'student';
+          let userType: UserType = 'student';
 
           if (userDoc.exists()) {
-            const userData = userDoc.data();
-            userRole = userData.role === 'admin' ? 'admin' : 'student';
+            const data = userDoc.data();
+            userRole = data.role === 'admin' ? 'admin' : 'student';
+            // Read userType (student/alumni/professor/admin)
+            if (data.userType === 'professor') userType = 'professor';
+            else if (data.userType === 'alumni') userType = 'alumni';
+            else if (data.role === 'admin') userType = 'admin';
+            else userType = 'student';
           }
 
           setUser({
             email: currentUser.email || '',
             role: userRole,
-            displayName: currentUser.displayName || undefined
+            userType,
+            displayName: currentUser.displayName || undefined,
           });
         } catch (error) {
           console.error('Error fetching user data:', error);
-          setUser({
-            email: currentUser.email || '',
-            role: 'student'
-          });
+          setUser({ email: currentUser.email || '', role: 'student', userType: 'student' });
         }
       } else {
         setUser(null);
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileDropdownOpen(false);
   }, [location.pathname]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileDropdownOpen(false);
       }
     };
-
-    if (isProfileDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (isProfileDropdownOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isProfileDropdownOpen]);
 
   const handleLogout = async () => {
@@ -114,14 +125,12 @@ const Navbar = () => {
   };
 
   const handleDashboardClick = () => {
-    const dashboardRoute = user?.role === 'admin' ? '/admin' : '/dashboard';
-    navigate(dashboardRoute);
+    navigate(getDashboardRoute(user!.userType));
     setIsProfileDropdownOpen(false);
   };
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Navigation links based on authentication state
   const guestLinks: NavLink[] = [
     { to: '/', label: 'Home', icon: <HomeIcon size={18} /> },
     { to: '/about', label: 'About', icon: <Info size={18} /> },
@@ -142,17 +151,25 @@ const Navbar = () => {
 
   const navigationLinks = user ? loggedInLinks : guestLinks;
 
-  // Show loading state briefly
+  const avatarGradient = () => {
+    switch (user?.userType) {
+      case 'admin': return 'from-purple-600 to-purple-800';
+      case 'professor': return 'from-amber-500 to-orange-600';
+      case 'alumni': return 'from-emerald-500 to-teal-600';
+      default: return 'from-blue-600 to-blue-800';
+    }
+  };
+
   if (loading) {
     return (
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-2 rounded-xl shadow-md">
+              <div className="bg-gradient-to-br from-rose-500 to-pink-700 p-2 rounded-xl shadow-md">
                 <HeartPulse className="text-white" size={24} />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-rose-500 to-pink-700 bg-clip-text text-transparent">
                 MindEase
               </span>
             </div>
@@ -165,7 +182,7 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-        ? 'bg-white/95 backdrop-blur-md shadow-lg'
+        ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-rose-100'
         : 'bg-white border-b border-gray-100'
         }`}
     >
@@ -173,16 +190,12 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
 
           {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2 group"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-2 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-md">
+          <Link to="/" className="flex items-center gap-2 group" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="bg-gradient-to-br from-rose-500 to-pink-700 p-2 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-md">
               <HeartPulse className="text-white" size={24} />
             </div>
             <div className="hidden sm:block">
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-rose-500 to-pink-700 bg-clip-text text-transparent">
                 MindEase
               </span>
               <span className="text-xs text-gray-500 block -mt-1">Mental Wellness</span>
@@ -195,15 +208,15 @@ const Navbar = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${link.highlight
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${link.highlight
                   ? 'bg-red-50 text-red-600 hover:bg-red-100 animate-pulse'
                   : isActive(link.to)
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
+                    ? 'bg-rose-50 text-rose-600'
+                    : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'
                   }`}
               >
                 {link.icon}
-                <span className="text-sm">{link.label}</span>
+                <span>{link.label}</span>
               </Link>
             ))}
           </div>
@@ -212,15 +225,12 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-3">
             {!user ? (
               <>
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
-                >
+                <Link to="/login" className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-rose-600 transition-colors">
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-pink-600 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   Signup
                 </Link>
@@ -232,30 +242,29 @@ const Navbar = () => {
                   className="flex items-center gap-3 pl-3 border-l border-gray-200 hover:opacity-80 transition-opacity"
                 >
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-gray-500 uppercase">
-                      {user.role === 'admin' ? 'Administrator' : 'Student'}
-                    </p>
-                    <p className="text-sm font-bold text-gray-800">
-                      {user.displayName || user.email.split('@')[0]}
-                    </p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase">{getRoleLabel(user.userType)}</p>
+                    <p className="text-sm font-bold text-gray-800">{user.displayName || user.email.split('@')[0]}</p>
                   </div>
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md ${user.role === 'admin' ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-gradient-to-br from-blue-600 to-blue-800'
-                    }`}>
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md bg-gradient-to-br ${avatarGradient()}`}>
                     <UserCircle size={24} />
                   </div>
                 </button>
 
-                {/* Profile Dropdown Menu */}
+                {/* Dropdown */}
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-rose-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-2 border-b border-rose-50 mb-1">
+                      <p className="text-xs text-gray-500">{getRoleLabel(user.userType)}</p>
+                      <p className="text-sm font-bold text-gray-800 truncate">{user.displayName || user.email}</p>
+                    </div>
                     <button
                       onClick={handleDashboardClick}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                     >
                       <LayoutDashboard size={18} />
-                      <span className="font-medium">Dashboard</span>
+                      <span className="font-medium">My Dashboard</span>
                     </button>
-                    <div className="border-t border-gray-100 my-1"></div>
+                    <div className="border-t border-gray-100 my-1" />
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors"
@@ -272,7 +281,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -281,12 +290,8 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-          }`}
-      >
-        <div className="px-4 pt-2 pb-4 bg-gray-50 border-t border-gray-200 shadow-inner">
-          {/* Mobile Navigation Links */}
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="px-4 pt-2 pb-4 bg-white border-t border-rose-100 shadow-inner">
           <div className="space-y-1 mb-4">
             {navigationLinks.map((link) => (
               <Link
@@ -295,8 +300,8 @@ const Navbar = () => {
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${link.highlight
                   ? 'bg-red-50 text-red-600 border border-red-200'
                   : isActive(link.to)
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-white hover:shadow-sm'
+                    ? 'bg-rose-500 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-rose-50 hover:text-rose-600'
                   }`}
               >
                 {link.icon}
@@ -305,44 +310,32 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Auth Section */}
           {!user ? (
             <div className="flex flex-col gap-2 pt-4 border-t border-gray-200">
-              <Link
-                to="/login"
-                className="w-full px-4 py-3 text-center font-semibold text-gray-700 bg-white rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
-              >
+              <Link to="/login" className="w-full px-4 py-3 text-center font-semibold text-gray-700 bg-white rounded-lg hover:bg-gray-100 transition-colors shadow-sm border border-gray-200">
                 Login
               </Link>
-              <Link
-                to="/signup"
-                className="w-full px-4 py-3 text-center font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md"
-              >
+              <Link to="/signup" className="w-full px-4 py-3 text-center font-semibold text-white bg-gradient-to-r from-rose-500 to-pink-600 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all shadow-md">
                 Signup
               </Link>
             </div>
           ) : (
             <div className="pt-4 border-t border-gray-200 space-y-2">
-              <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-lg">
-                <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white shadow-md ${user.role === 'admin' ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-gradient-to-br from-blue-600 to-blue-800'
-                  }`}>
+              <div className="flex items-center gap-3 px-4 py-3 bg-rose-50 rounded-lg">
+                <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white shadow-md bg-gradient-to-br ${avatarGradient()}`}>
                   <UserCircle size={28} />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase">
-                    {user.role === 'admin' ? 'Administrator' : 'Student'}
-                  </p>
-                  <p className="text-sm font-bold text-gray-800">
-                    {user.displayName || user.email}
-                  </p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase">{getRoleLabel(user.userType)}</p>
+                  <p className="text-sm font-bold text-gray-800">{user.displayName || user.email}</p>
                 </div>
               </div>
               <button
                 onClick={handleDashboardClick}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 font-semibold transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 font-semibold transition-colors"
               >
                 <LayoutDashboard size={20} />
-                Dashboard
+                My Dashboard
               </button>
               <button
                 onClick={handleLogout}

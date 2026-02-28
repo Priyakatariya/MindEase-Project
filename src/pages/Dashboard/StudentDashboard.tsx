@@ -7,7 +7,8 @@ import {
 import {
   Send, Clock, FileText, Heart, Calendar,
   CheckCircle, Hourglass, Plus, Layout,
-  Pencil, Trash2, X, Save,
+  Pencil, Trash2, X, Save, Phone, Link as LinkIcon,
+  CreditCard, UserCircle,
 } from 'lucide-react';
 
 type PostType = 'feedback' | 'story';
@@ -22,7 +23,41 @@ interface Article {
   createdAt?: any;
 }
 
-// ─── Shared post submit form ─────────────────────────────────────────
+interface EventItem {
+  id: string;
+  uid: string;
+  author: string;
+  content: string;
+  type: string;
+  status: string;
+  eventTitle?: string;
+  eventDate?: string;
+  eventEndDate?: string;
+  meetingLink?: string;
+  paymentLink?: string;
+  contactNumber?: string;
+  imageUrl?: string;
+  userRole?: string;
+  createdAt?: any;
+}
+
+// ─── Glassmorphism Card ───────────────────────────────────────────────
+const GlassCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <div
+    className={`rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-xl ${className}`}
+    style={{
+      background: 'rgba(255,255,255,0.75)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      border: '1.5px solid rgba(249,197,204,0.6)',
+      boxShadow: '0 8px 32px rgba(212,97,122,0.08)',
+    }}
+  >
+    {children}
+  </div>
+);
+
+// ─── Post Submit Form ────────────────────────────────────────────────
 const PostBox = ({
   type, label, icon, placeholder, onPosted,
 }: {
@@ -61,51 +96,54 @@ const PostBox = ({
   };
 
   return (
-    <div className="rounded-[2rem] overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.90)', border: '1.5px solid #F9C5CC', boxShadow: '0 6px 24px rgba(212,97,122,0.07)' }}>
-      <div className="flex items-center gap-3 px-6 py-4 border-b" style={{ borderColor: '#F9C5CC', background: 'linear-gradient(135deg,#FFF5F7,#FFE8ED)' }}>
+    <GlassCard>
+      <div className="flex items-center gap-3 px-6 py-4 border-b"
+        style={{ borderColor: 'rgba(249,197,204,0.5)', background: 'linear-gradient(135deg,rgba(255,245,247,0.9),rgba(255,232,237,0.9))' }}>
         {icon}
         <h3 className="font-black text-base" style={{ color: '#3D1520' }}>{label}</h3>
-        <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background: '#FFE8ED', color: '#D4617A' }}>
+        <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
+          style={{ background: 'rgba(255,232,237,0.9)', color: '#D4617A' }}>
           {type === 'feedback' ? 'Appears on Home Page' : 'Appears on Stories Page'}
         </span>
       </div>
-      <form onSubmit={handleSubmit} className="p-6">
+      <form onSubmit={handleSubmit} className="p-6 space-y-4">
         <textarea
           value={text} onChange={e => setText(e.target.value)}
           rows={4} placeholder={placeholder}
           className="w-full p-4 rounded-[1.5rem] outline-none resize-none text-sm transition-all"
-          style={{ background: '#FFF5F7', border: '1.5px solid #F9C5CC', color: '#3D1520' }}
+          style={{ background: 'rgba(255,245,247,0.8)', border: '1.5px solid #F9C5CC', color: '#3D1520' }}
           onFocus={e => e.currentTarget.style.borderColor = '#D4617A'}
           onBlur={e => e.currentTarget.style.borderColor = '#F9C5CC'}
         />
         {success && (
-          <div className="mt-3 py-3 px-4 rounded-xl text-sm font-bold" style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}>
+          <div className="py-3 px-4 rounded-xl text-sm font-bold"
+            style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}>
             ✅ Submitted! Admin will review and approve.
           </div>
         )}
         <button type="submit" disabled={loading || !text.trim()}
-          className="mt-4 flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-white text-sm disabled:opacity-50 transition-all"
+          className="flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-white text-sm disabled:opacity-50 transition-all hover:-translate-y-0.5 hover:shadow-lg"
           style={{ background: 'linear-gradient(135deg,#D4617A,#C44A6A)', boxShadow: '0 6px 20px rgba(212,97,122,0.28)' }}>
           <Send size={15} /> {loading ? 'Sending…' : 'Submit for Review'}
         </button>
       </form>
-    </div>
+    </GlassCard>
   );
 };
 
-// ─── Shared post list card ────────────────────────────────────────────
+// ─── Post List ───────────────────────────────────────────────────────
 const PostList = ({ title, icon, posts, editId, editText, setEditId, setEditText, onDelete, onEditSave }: any) => (
   <div className="space-y-4">
     <h3 className="font-black text-base flex items-center gap-2" style={{ color: '#3D1520' }}>{icon} {title}</h3>
     {posts.length === 0 ? (
-      <div className="p-8 rounded-[2rem] text-center" style={{ background: 'rgba(255,255,255,0.60)', border: '2px dashed #F9C5CC' }}>
+      <div className="p-8 rounded-[2rem] text-center"
+        style={{ background: 'rgba(255,255,255,0.50)', border: '2px dashed rgba(249,197,204,0.8)' }}>
         <Plus size={24} style={{ color: '#F9C5CC', margin: 'auto' }} />
         <p className="mt-2 text-sm" style={{ color: '#D4617A', opacity: 0.65 }}>Nothing yet — submit above!</p>
       </div>
     ) : posts.map((a: Article) => (
-      <div key={a.id} className="p-5 rounded-[1.8rem] transition-all"
-        style={{ background: 'rgba(255,255,255,0.88)', border: '1.5px solid #F9C5CC', boxShadow: '0 3px 12px rgba(212,97,122,0.05)' }}>
+      <div key={a.id} className="p-5 rounded-[1.8rem] transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+        style={{ background: 'rgba(255,255,255,0.82)', border: '1.5px solid rgba(249,197,204,0.7)', boxShadow: '0 3px 12px rgba(212,97,122,0.05)' }}>
         {editId === a.id ? (
           <div className="space-y-3">
             <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={3}
@@ -130,8 +168,8 @@ const PostList = ({ title, icon, posts, editId, editText, setEditId, setEditText
                 ? <><CheckCircle size={16} className="text-emerald-500" /><span className="text-[9px] font-black text-emerald-500">LIVE</span></>
                 : <><Hourglass size={16} className="text-orange-400 animate-pulse" /><span className="text-[9px] font-black text-orange-400">PENDING</span></>
               }
-              <button onClick={() => { setEditId(a.id); setEditText(a.content); }} className="p-1 rounded-lg hover:bg-pink-50"><Pencil size={13} style={{ color: '#D4617A' }} /></button>
-              <button onClick={() => onDelete(a.id)} className="p-1 rounded-lg hover:bg-red-50"><Trash2 size={13} className="text-red-400" /></button>
+              <button onClick={() => { setEditId(a.id); setEditText(a.content); }} className="p-1 rounded-lg hover:bg-pink-50 transition-colors"><Pencil size={13} style={{ color: '#D4617A' }} /></button>
+              <button onClick={() => onDelete(a.id)} className="p-1 rounded-lg hover:bg-red-50 transition-colors"><Trash2 size={13} className="text-red-400" /></button>
             </div>
           </div>
         )}
@@ -140,10 +178,60 @@ const PostList = ({ title, icon, posts, editId, editText, setEditId, setEditText
   </div>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────
+// ─── Event Card ────────────────────────────────────────────────────────
+const EventCard = ({ ev }: { ev: EventItem }) => (
+  <div className="rounded-[1.8rem] overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default"
+    style={{ background: 'rgba(255,255,255,0.82)', border: '1.5px solid rgba(249,197,204,0.7)', boxShadow: '0 3px 12px rgba(212,97,122,0.05)' }}>
+    {ev.imageUrl && <img src={ev.imageUrl} alt="event banner" className="w-full h-36 object-cover" />}
+    <div className="p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[10px] font-black px-2.5 py-1 rounded-full"
+          style={{ background: 'rgba(255,232,237,0.9)', color: '#D4617A' }}>
+          {ev.userRole === 'professor' ? '👨‍🏫 Professor' : '🎓 Alumni'}
+        </span>
+        {ev.eventDate && (
+          <span className="text-[10px] font-bold flex items-center gap-1" style={{ color: '#7A3545' }}>
+            <Calendar size={9} /> {ev.eventDate}
+          </span>
+        )}
+      </div>
+      {ev.eventTitle && <h4 className="font-black text-sm mb-1" style={{ color: '#3D1520' }}>{ev.eventTitle}</h4>}
+      {ev.eventEndDate && (
+        <p className="text-[11px] font-bold mb-1 flex items-center gap-1" style={{ color: '#C44A6A' }}>
+          🏁 Ends: {ev.eventEndDate}
+        </p>
+      )}
+      <p className="text-sm leading-relaxed mb-3" style={{ color: '#7A3545' }}>{ev.content}</p>
+      <div className="space-y-1.5">
+        {ev.contactNumber && (
+          <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: '#7A3545' }}>
+            <Phone size={10} style={{ color: '#D4617A' }} /> {ev.contactNumber}
+          </p>
+        )}
+        {ev.meetingLink && (
+          <a href={ev.meetingLink} target="_blank" rel="noreferrer"
+            className="text-[11px] font-bold flex items-center gap-1.5 hover:underline"
+            style={{ color: '#4F46E5' }}>
+            <LinkIcon size={10} /> Join Meeting
+          </a>
+        )}
+        {ev.paymentLink && (
+          <a href={ev.paymentLink} target="_blank" rel="noreferrer"
+            className="text-[11px] font-bold flex items-center gap-1.5 hover:underline"
+            style={{ color: '#059669' }}>
+            <CreditCard size={10} /> Pay Now
+          </a>
+        )}
+      </div>
+      <p className="text-[10px] uppercase font-bold mt-3" style={{ color: '#D4617A', opacity: 0.55 }}>By {ev.author}</p>
+    </div>
+  </div>
+);
+
+// ─── Main Component ────────────────────────────────────────────────────
 const StudentDashboard: React.FC = () => {
   const [myPosts, setMyPosts] = useState<Article[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [refresh, setRefresh] = useState(0);
@@ -158,7 +246,8 @@ const StudentDashboard: React.FC = () => {
 
     const evQ = query(collection(db, 'articles'), where('type', '==', 'event'), where('status', '==', 'approved'));
     const evUnsub = onSnapshot(evQ, snap => {
-      setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a: any, b: any) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+      setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() } as EventItem))
+        .sort((a: any, b: any) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     });
 
     return () => { unsub(); evUnsub(); };
@@ -178,74 +267,85 @@ const StudentDashboard: React.FC = () => {
   const feedbackPosts = myPosts.filter(a => a.type === 'feedback');
   const storyPosts = myPosts.filter(a => a.type === 'story');
   const stats = [
-    { n: myPosts.length, l: 'Total' },
-    { n: myPosts.filter(a => a.status === 'approved').length, l: 'Live' },
-    { n: myPosts.filter(a => a.status === 'pending').length, l: 'Pending' },
+    { n: myPosts.length, l: 'Total Posts', icon: '📝', color: '#D4617A' },
+    { n: myPosts.filter(a => a.status === 'approved').length, l: 'Live', icon: '✅', color: '#059669' },
+    { n: myPosts.filter(a => a.status === 'pending').length, l: 'Pending', icon: '⏳', color: '#D97706' },
   ];
 
   return (
-    <div className="min-h-screen pb-20" style={{ background: '#FFF5F7' }}>
-      {/* Header */}
-      <div className="relative overflow-hidden pt-16 pb-24 px-6"
+    <div className="min-h-screen pb-20" style={{ background: 'linear-gradient(160deg, #FFF5F7 0%, #FFE8ED 50%, #FFF0F3 100%)' }}>
+      {/* ── Hero Header ── */}
+      <div className="relative overflow-hidden pt-24 pb-28 px-6"
         style={{ background: 'linear-gradient(135deg,#D4617A 0%,#C44A6A 55%,#b83060 100%)' }}>
+        {/* Decorative blobs */}
+        <div className="absolute top-0 right-0 w-72 h-72 rounded-full opacity-10"
+          style={{ background: 'white', transform: 'translate(30%, -30%)' }} />
+        <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full opacity-10"
+          style={{ background: 'white', transform: 'translate(-20%, 30%)' }} />
+
         <div className="relative max-w-5xl mx-auto flex items-center gap-5 text-white">
-          <div className="bg-white/15 p-4 rounded-3xl backdrop-blur-md"><Layout size={30} /></div>
-          <div>
-            <p className="text-pink-200 text-xs font-black uppercase tracking-widest mb-0.5">Student</p>
-            <h1 className="text-3xl font-black">My Dashboard</h1>
+          <div className="bg-white/15 p-4 rounded-3xl backdrop-blur-md border border-white/20 shadow-xl">
+            <Layout size={30} />
           </div>
-          {/* Profile mini */}
+          <div>
+            <p className="text-pink-100 text-xs font-black uppercase tracking-widest mb-0.5">🎓 Student</p>
+            <h1 className="text-3xl font-black">My Dashboard</h1>
+            <p className="text-white/70 text-sm mt-0.5">NIT Kurukshetra</p>
+          </div>
           <div className="ml-auto flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white text-lg font-black"
-              style={{ background: 'rgba(255,255,255,0.18)' }}>
-              {auth.currentUser?.displayName?.charAt(0) || '?'}
+            <div>
+              <p className="font-black text-sm text-right">{auth.currentUser?.displayName || 'Student'}</p>
+              <p className="text-white/60 text-xs text-right">{auth.currentUser?.email}</p>
             </div>
-            <div className="hidden sm:block">
-              <p className="font-black text-sm">{auth.currentUser?.displayName}</p>
-              <p className="text-pink-200 text-xs">NIT Kurukshetra</p>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/30"
+              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}>
+              <UserCircle size={26} className="text-white" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 -mt-12 space-y-8">
+      <div className="max-w-5xl mx-auto px-6 -mt-14 space-y-8">
 
-        {/* Stats row */}
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {stats.map((s, i) => (
-            <div key={i} className="p-5 rounded-[2rem] text-center"
-              style={{ background: 'rgba(255,255,255,0.90)', border: '1.5px solid #F9C5CC', boxShadow: '0 4px 16px rgba(212,97,122,0.08)' }}>
-              <p className="text-3xl font-black" style={{ color: i === 1 ? '#059669' : '#D4617A' }}>{s.n}</p>
+            <div key={i}
+              className="p-5 rounded-[2rem] text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default"
+              style={{
+                background: 'rgba(255,255,255,0.80)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(249,197,204,0.6)',
+                boxShadow: '0 4px 16px rgba(212,97,122,0.08)',
+              }}>
+              <div className="text-2xl mb-1">{s.icon}</div>
+              <p className="text-3xl font-black" style={{ color: s.color }}>{s.n}</p>
               <p className="text-[10px] uppercase font-bold mt-1" style={{ color: '#7A3545', opacity: 0.65 }}>{s.l}</p>
             </div>
           ))}
         </div>
 
-        {/* ── Create: Feedback ── */}
+        {/* ── Post Forms ── */}
         <PostBox
           type="feedback" label="Share Feedback"
           icon={<Heart size={18} style={{ color: '#D4617A' }} />}
           placeholder="A short quote or feeling about MindEase — may appear on the home page once approved by admin."
           onPosted={() => setRefresh(r => r + 1)}
         />
-
-        {/* ── Create: Story ── */}
         <PostBox
           type="story" label="Post My Story"
           icon={<FileText size={18} style={{ color: '#D4617A' }} />}
-          placeholder="Share your mental health journey, a tip for juniors, or how MindEase helped you. This will appear on the Stories page."
+          placeholder="Share your mental health journey, a tip for juniors, or how MindEase helped you."
           onPosted={() => setRefresh(r => r + 1)}
         />
 
-        {/* ── My Feedback list ── */}
+        {/* ── My Posts Lists ── */}
         <PostList
           title="My Feedback" icon={<Heart size={16} style={{ color: '#D4617A' }} />}
           posts={feedbackPosts} editId={editId} editText={editText}
           setEditId={setEditId} setEditText={setEditText}
           onDelete={handleDelete} onEditSave={handleEditSave}
         />
-
-        {/* ── My Stories list ── */}
         <PostList
           title="My Stories" icon={<FileText size={16} style={{ color: '#D4617A' }} />}
           posts={storyPosts} editId={editId} editText={editText}
@@ -253,27 +353,14 @@ const StudentDashboard: React.FC = () => {
           onDelete={handleDelete} onEditSave={handleEditSave}
         />
 
-        {/* ── Events from alumni/professors ── */}
+        {/* ── Upcoming Events from Alumni/Professors ── */}
         {events.length > 0 && (
           <div className="space-y-4">
             <h3 className="font-black text-base flex items-center gap-2" style={{ color: '#3D1520' }}>
               <Calendar size={18} style={{ color: '#D4617A' }} /> Upcoming Events
             </h3>
             <div className="grid md:grid-cols-2 gap-5">
-              {events.map(ev => (
-                <div key={ev.id} className="p-5 rounded-[1.8rem]"
-                  style={{ background: 'rgba(255,255,255,0.90)', border: '1.5px solid #F9C5CC', boxShadow: '0 3px 12px rgba(212,97,122,0.05)' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-black px-2.5 py-1 rounded-full" style={{ background: '#FFE8ED', color: '#D4617A' }}>
-                      {ev.userRole === 'professor' ? '👨‍🏫 Professor' : '🎓 Alumni'}
-                    </span>
-                    {ev.eventDate && <span className="text-xs font-bold" style={{ color: '#7A3545' }}>{ev.eventDate}</span>}
-                  </div>
-                  {ev.eventTitle && <h4 className="font-black text-sm mb-1" style={{ color: '#3D1520' }}>{ev.eventTitle}</h4>}
-                  <p className="text-sm leading-relaxed" style={{ color: '#7A3545' }}>{ev.content}</p>
-                  <p className="text-[10px] uppercase font-bold mt-2" style={{ color: '#D4617A', opacity: 0.55 }}>By {ev.author}</p>
-                </div>
-              ))}
+              {events.map(ev => <EventCard key={ev.id} ev={ev} />)}
             </div>
           </div>
         )}
