@@ -30,6 +30,7 @@ import Appointment from './pages/Appointment';
 import Community from './pages/Community';
 import Team from './pages/Team';
 import AlumniProfessorDashboard from './pages/Dashboard/AlumniProfessorDashboard';
+import UserProfile from './pages/UserProfile';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -76,6 +77,7 @@ const AppContent: React.FC = () => {
           <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
           <Route path="/alumni-dashboard" element={<ProtectedRoute><AlumniProfessorDashboard role="alumni" /></ProtectedRoute>} />
           <Route path="/professor-dashboard" element={<ProtectedRoute><AlumniProfessorDashboard role="professor" /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
           {/* 👑 Admin Nested Routes with Sidebar Layout */}
           <Route
