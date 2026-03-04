@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase';
 import {
   collection, addDoc, query, where, onSnapshot,
-  serverTimestamp, doc, updateDoc, deleteDoc,
+  serverTimestamp, doc, updateDoc, deleteDoc, getDoc,
 } from 'firebase/firestore';
 import {
   Send, Clock, FileText, Heart, Calendar,
   CheckCircle, Hourglass, Plus, Layout,
   Pencil, Trash2, X, Save, Phone, Link as LinkIcon,
-  CreditCard, UserCircle,
+  CreditCard,
 } from 'lucide-react';
 
 type PostType = 'feedback' | 'story';
@@ -230,14 +231,20 @@ const EventCard = ({ ev }: { ev: EventItem }) => (
 
 // ─── Main Component ────────────────────────────────────────────────────
 const StudentDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [myPosts, setMyPosts] = useState<Article[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [refresh, setRefresh] = useState(0);
+  const [profilePhoto, setProfilePhoto] = useState('');
 
   useEffect(() => {
     if (!auth.currentUser) return;
+    // Load profile photo
+    getDoc(doc(db, 'users', auth.currentUser.uid)).then(snap => {
+      if (snap.exists()) setProfilePhoto(snap.data().photoBase64 || '');
+    });
     const q = query(collection(db, 'articles'), where('uid', '==', auth.currentUser.uid));
     const unsub = onSnapshot(q, snap => {
       const docs = snap.docs.map(d => ({ id: d.id, ...d.data() } as Article));
@@ -297,10 +304,20 @@ const StudentDashboard: React.FC = () => {
               <p className="font-black text-sm text-right">{auth.currentUser?.displayName || 'Student'}</p>
               <p className="text-white/60 text-xs text-right">{auth.currentUser?.email}</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/30"
-              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}>
-              <UserCircle size={26} className="text-white" />
-            </div>
+            <button
+              onClick={() => navigate('/profile')}
+              title="Edit Profile"
+              className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white/30 flex items-center justify-center transition-all hover:scale-110 hover:border-white/60"
+              style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
+            >
+              {profilePhoto ? (
+                <img src={profilePhoto} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-black text-lg">
+                  {(auth.currentUser?.displayName || 'S')[0].toUpperCase()}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>

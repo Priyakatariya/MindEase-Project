@@ -7,7 +7,7 @@ import {
   Menu, X, HeartPulse, LogOut,
   LayoutDashboard, Home as HomeIcon,
   Info, HelpCircle, Phone, AlertCircle, Users, MessageSquare,
-  Activity, BookOpen, UserCircle, Calendar, Bot
+  Activity, BookOpen, UserCircle, Calendar, Bot, User
 } from 'lucide-react';
 
 type UserType = 'student' | 'alumni' | 'professor' | 'admin';
@@ -52,6 +52,7 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [navphoto, setNavPhoto] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,11 +66,11 @@ const Navbar = () => {
           if (userDoc.exists()) {
             const data = userDoc.data();
             userRole = data.role === 'admin' ? 'admin' : 'student';
-            // Read userType (student/alumni/professor/admin)
             if (data.userType === 'professor') userType = 'professor';
             else if (data.userType === 'alumni') userType = 'alumni';
             else if (data.role === 'admin') userType = 'admin';
             else userType = 'student';
+            setNavPhoto(data.photoBase64 || '');
           }
 
           setUser({
@@ -84,6 +85,7 @@ const Navbar = () => {
         }
       } else {
         setUser(null);
+        setNavPhoto('');
       }
       setLoading(false);
     });
@@ -245,8 +247,12 @@ const Navbar = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase">{getRoleLabel(user.userType)}</p>
                     <p className="text-sm font-bold text-gray-800">{user.displayName || user.email.split('@')[0]}</p>
                   </div>
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md bg-gradient-to-br ${avatarGradient()}`}>
-                    <UserCircle size={24} />
+                  <div className={`h-10 w-10 rounded-full overflow-hidden flex items-center justify-center text-white shadow-md bg-gradient-to-br ${avatarGradient()}`}>
+                    {navphoto ? (
+                      <img src={navphoto} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <UserCircle size={24} />
+                    )}
                   </div>
                 </button>
 
@@ -264,6 +270,14 @@ const Navbar = () => {
                       <LayoutDashboard size={18} />
                       <span className="font-medium">My Dashboard</span>
                     </button>
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                    >
+                      <User size={18} />
+                      <span className="font-medium">My Profile</span>
+                    </Link>
                     <div className="border-t border-gray-100 my-1" />
                     <button
                       onClick={handleLogout}
@@ -337,6 +351,13 @@ const Navbar = () => {
                 <LayoutDashboard size={20} />
                 My Dashboard
               </button>
+              <Link
+                to="/profile"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-violet-600 bg-violet-50 rounded-lg hover:bg-violet-100 font-semibold transition-colors"
+              >
+                <User size={20} />
+                My Profile
+              </Link>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 font-semibold transition-colors"
