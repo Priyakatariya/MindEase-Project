@@ -204,21 +204,14 @@ const FeedbackMarquee: React.FC = () => {
   );
 
   return (
-<<<<<<< HEAD
-    <section className="py-20 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14">
 
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4" style={{ color: '#3D1520' }}>
-            Student{' '}
-=======
     <section className="py-20 overflow-hidden">
       <FadeIn>
         <div className="text-center mb-12 px-6">
 
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-3" style={{ color: '#3D1520' }}>
             What Our{' '}
->>>>>>> 7c7d806 (homepage)
+
             <span style={{ background: 'linear-gradient(135deg, #D4617A, #C44A6A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Community Says
             </span>
