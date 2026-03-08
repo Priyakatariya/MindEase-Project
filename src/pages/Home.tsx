@@ -65,7 +65,7 @@ const FAQ_DATA = [
       { question: "Is my data sold?", answer: "Our fundamental rule at MindEase is to never share any data, your data is encrypted and secure here and ensured that no third party accesses it" },
       { question: "Can admins read chats?", answer: "All chats with our AI assitant is private, no human can access nor read it" },
       { question: "Can I delete my data?", answer: "Yes you are given the option to delete your data completely" },
-      { question: "can I share sensitive topics and past traumas here?", answer: "Yes MindEase is a safe place where you can be yourself and share your mind at!" },
+      { question: "can I share sensitive topics and past traumas here?", answer: "Yes MindEase is a safe place where you can be yourself and share your mind at!!" },
     ],
   },
 ];
