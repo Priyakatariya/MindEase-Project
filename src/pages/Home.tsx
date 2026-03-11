@@ -147,7 +147,7 @@ const FadeIn: React.FC<{ children: React.ReactNode; delay?: number; className?: 
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
-    >
+    > 
       {children}
     </motion.div>
   );
@@ -478,9 +478,7 @@ const Home: React.FC = () => {
                 // --- CHERRY BLOSSOMS (🌸) - Consistent Floral Theme ---
                 { emoji: '🌸', top: '5%', left: '10%', size: 55, dur: 4.5, delay: 0.2 },
                 { emoji: '🌸', top: '45%', left: '-4%', size: 62, dur: 5.2, delay: 1.5 },
-                { emoji: '🌸', top: '88%', left: '65%', size: 55, dur: 5.2, delay: 1.1 },
-                { emoji: '🌸', top: '15%', left: '85%', size: 45, dur: 4.0, delay: 0.9 },
-
+               
                 // --- EXCESSIVE SMILING & LOVE FACES ---
                 { emoji: '😊', top: '2%', left: '35%', size: 64, dur: 5.0, delay: 0.0 },
                 { emoji: '🥰', top: '12%', left: '92%', size: 70, dur: 4.8, delay: 0.4 },
@@ -490,7 +488,7 @@ const Home: React.FC = () => {
                 { emoji: '😍', top: '3%', left: '75%', size: 52, dur: 4.2, delay: 0.6 },
                 { emoji: '✨', top: '80%', left: '90%', size: 45, dur: 3.5, delay: 0.3 },
                 { emoji: '💗', top: '92%', left: '30%', size: 50, dur: 5.5, delay: 2.1 },
-                { emoji: '🙂', top: '60%', left: '-3%', size: 55, dur: 4.8, delay: 0.9 },
+               
                 { emoji: '🤩', top: '18%', left: '20%', size: 48, dur: 4.2, delay: 1.4 },
                 { emoji: '☺️', top: '85%', left: '45%', size: 60, dur: 5.8, delay: 0.7 },
                 { emoji: '🫂', top: '38%', left: '88%', size: 68, dur: 5.5, delay: 1.0 },
