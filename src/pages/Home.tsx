@@ -171,15 +171,19 @@ const FeedbackMarquee: React.FC = () => {
 
 const HERO_IMAGES = [
 
-  'https://www.cosmos.so/e/737184541',
-  'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&q=85&w=900',
-  'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=85&w=900',
-];
+
+  'https://cdn.cosmos.so/719bf8ca-34a1-4f0d-bfeb-23c0edbda5db?format=jpeg',
+  'https://i.ibb.co/ZpHLfrcG/image-2026-03-12-201013466.png',
+  'https://i.fbcd.co/products/original/2210-m01-i080-n023-s-c15-1830070274-posi-mainpreview-507d829b45b71d631fc225f5878237617a34d9a5e776f779629a62d628ec0256.jpg',
+  'https://hips.hearstapps.com/hmg-prod/images/helping-friend-1601485537.jpg?crop=0.503xw:1.00xh;0.245xw,0&resize=1200:*',
+  'https://cdn-res.keymedia.com/cms/images/us/036/0311_637852892984224407.jpg',
+  'https://st4.depositphotos.com/26044198/39154/v/450/depositphotos_391543464-stock-illustration-psychology-emotion-psychotherapy-concept-vector.jpg',
+  'https://st4.depositphotos.com/39742510/41914/v/450/depositphotos_419146228-stock-illustration-vector-illustration-girl-portrait-girl.jpg',
+  'https://plus.unsplash.com/premium_vector-1683141288473-829c57a91555?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWVudGFsJTIwaGVhbHRoJTIwYXdhcmVuZXNzfGVufDB8fDB8fHww'
+]
+
+
+=
 
 const Home: React.FC = () => {
   const navigate = useNavigate();

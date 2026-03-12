@@ -28,21 +28,9 @@ export const MENTORS: Mentor[] = [
         bio: "Led the project.",
         tags: ["Mindfulness", "CBT", "Anxiety Relief", "Academic Stress", "Breathing Techniques"],
     },
+    
     {
         id: 2,
-        name: "Amica Aggarwal",
-        role: "Team Member",
-        specialty: "Developer",
-        experience: "8 Years",
-        rating: 4.8,
-        sessions: 210,
-        image: "https://ibb.co/rKGjPdpL",
-        email: "mentor2@mindease.edu", // Replace with real mentor email
-        bio: "Worked on the project.",
-        tags: ["Work-Life Balance", "Habit Building", "Time Management", "Burnout Prevention"],
-    },
-    {
-        id: 3,
         name: "Trishna Saini",
         role: "Team Member",
         specialty: "Developer",
@@ -55,7 +43,7 @@ export const MENTORS: Mentor[] = [
         tags: ["Cognitive Behavioral Therapy", "Stress Reduction", "Thought Patterns", "Exam Anxiety"],
     },
     {
-        id: 4,
+        id: 3,
         name: "Krishna Kumar",
         role: "Team Member",
         specialty: "Developer",
@@ -68,7 +56,7 @@ export const MENTORS: Mentor[] = [
         tags: ["Conflict Resolution", "Communication", "Relationships", "Social Skills", "Peer Dynamics"],
     },
     {
-        id: 5,
+        id: 4,
         name: "Hariram Chembra",
         role: "Team Member",
         specialty: "Emotional Healing",
@@ -79,5 +67,18 @@ export const MENTORS: Mentor[] = [
         email: "mentor5@mindease.edu", // Replace with real mentor email
         bio: "Worked on the project.",
         tags: ["Trauma Healing", "Emotional Safety", "Self-Compassion", "Resilience Building"],
+    },
+    {
+        id: 5,
+        name: "Amica Aggarwal",
+        role: "Team Member",
+        specialty: "Developer",
+        experience: "8 Years",
+        rating: 4.8,
+        sessions: 210,
+        image: "https://i.ibb.co/JFMGp1b9/picture.jpg",
+        email: "mentor2@mindease.edu", // Replace with real mentor email
+        bio: "Worked on the project.",
+        tags: ["Work-Life Balance", "Habit Building", "Time Management", "Burnout Prevention"],
     },
 ]
