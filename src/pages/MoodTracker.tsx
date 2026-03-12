@@ -132,13 +132,10 @@ const MoodTracker: React.FC = () => {
               animation: `${b.anim} 7s ease-in-out infinite`,
             }} />
         ))}
+        <br />
 
         <div className="relative max-w-4xl mx-auto z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5 text-xs font-black uppercase tracking-widest"
-            style={{ background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.22)', color: 'white' }}>
-            <Sparkles size={13} className="text-yellow-200" />
-            Student Wellness Check
-          </div>
+          
           <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight text-white">
             Mood Tracker<br />
             <span style={{ color: 'rgba(255,220,230,0.95)' }}>How are you feeling?</span>
