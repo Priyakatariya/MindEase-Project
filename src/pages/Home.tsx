@@ -243,7 +243,7 @@ const FeedbackMarquee: React.FC = () => {
 
 const HERO_IMAGES = [
 
-  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=85&w=900',
+  'https://www.cosmos.so/e/737184541',
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&q=85&w=900',
   'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&q=85&w=900',
   'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&q=85&w=900',
