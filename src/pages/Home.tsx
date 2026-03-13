@@ -224,7 +224,7 @@ const Home: React.FC = () => {
         <section className="relative min-h-[94vh] flex items-center px-6 pt-24 pb-16 overflow-hidden">
           {[
             { color: 'rgba(255, 147, 170, 0.67)', w: 380, h: 380, top: '2%', left: '5%', xA: [0, 50, 0], yA: [0, 35, 0], dur: 18, delay: 0 },
-            { color: 'rgba(255, 205, 231, 0.57)', w: 300, h: 300, top: '58%', left: '1%', xA: [0, -30, 0], yA: [0, -25, 0], dur: 22, delay: 2 },
+            { color: 'rgba(254, 255, 205, 0.57)', w: 300, h: 300, top: '58%', left: '1%', xA: [0, -30, 0], yA: [0, -25, 0], dur: 22, delay: 2 },
             { color: 'hsla(325, 100%, 81%, 0.52)', w: 340, h: 340, top: '10%', left: '68%', xA: [0, -40, 0], yA: [0, 30, 0], dur: 20, delay: 1 },
             { color: 'rgba(254, 122, 206, 0.59)', w: 240, h: 240, top: '68%', left: '78%', xA: [0, 25, 0], yA: [0, -35, 0], dur: 25, delay: 3 },
             { color: 'rgba(255, 110, 187, 0.43)', w: 220, h: 220, top: '42%', left: '45%', xA: [0, 22, 0], yA: [0, 22, 0], dur: 16, delay: 1.5 },
