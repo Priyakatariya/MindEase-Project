@@ -31,19 +31,6 @@ export const MENTORS: Mentor[] = [
     
     {
         id: 2,
-        name: "Amica Aggarwal",
-        role: "Team Member",
-        specialty: "Work-Life Balance",
-        experience: "8 Years",
-        rating: 4.8,
-        sessions: 210,
-        image: "https://ibb.co/rKGjPdpL",
-        email: "mentor2@mindease.edu", // Replace with real mentor email
-        bio: "Worked on the project.",
-        tags: ["Work-Life Balance", "Habit Building", "Time Management", "Burnout Prevention"],
-    },
-    {
-        id: 3,
         name: "Trishna Saini",
         role: "Team Member",
         specialty: "Developer",
@@ -82,16 +69,16 @@ export const MENTORS: Mentor[] = [
         tags: ["Trauma Healing", "Emotional Safety", "Self-Compassion", "Resilience Building"],
     },
     {
-        id: 6,
-        name: "Dr. David Park",
-        role: "Motivational Psychologist",
-        specialty: "Self-Growth & Confidence",
-        experience: "11 Years",
+        id: 5,
+        name: "Amica Aggarwal",
+        role: "Team Member",
+        specialty: "Developer",
+        experience: "8 Years",
         rating: 4.8,
-        sessions: 310,
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=400",
-        email: "mentor6@mindease.edu", // Replace with real mentor email
-        bio: "Dr. Park uses positive psychology and motivational interviewing to help students unlock their inner potential, build self-confidence, and pursue their goals with purpose and drive.",
-        tags: ["Self-Growth", "Confidence", "Positive Psychology", "Goal Setting", "Motivation"],
+        sessions: 210,
+        image: "https://i.ibb.co/JFMGp1b9/picture.jpg",
+        email: "mentor2@mindease.edu", // Replace with real mentor email
+        bio: "Worked on the project.",
+        tags: ["Work-Life Balance", "Habit Building", "Time Management", "Burnout Prevention"],
     },
-];
+]
