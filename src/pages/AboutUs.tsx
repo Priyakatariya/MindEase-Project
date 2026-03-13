@@ -1,15 +1,14 @@
-import React, { } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
 import {
     Heart, Brain, Shield, Users,
     ArrowRight, CheckCircle, Zap, Globe,
-    Crown, Star, Github, Linkedin, Mail
+    Star, Github, Linkedin, Mail, X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { TEAM } from '../data/teamData';
 import type { TeamMember } from '../data/teamData';
-
 const SectionTag = ({ children }: { children: React.ReactNode }) => (
     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-5"
         style={{ background: 'rgba(212,97,122,0.10)', color: '#D4617A', border: '1px solid rgba(212,97,122,0.2)' }}>
@@ -38,6 +37,7 @@ const ValueCard = ({ icon, title, desc, color }: { icon: React.ReactNode; title:
 
 const AboutUs: React.FC = () => {
     usePageTitle('About Us');
+    const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
     const values = [
         { icon: <Shield size={24} />, title: 'Anonymous', desc: 'Interactions on MindEase are confidential and secure. Privacy is our top priority.', color: '#7C3AED' },
         { icon: <Heart size={24} />, title: 'Student Oriented', desc: 'Built specifically for NIT Kurukshetra students, understanding the pressures of college life.', color: '#D4617A' },
@@ -46,9 +46,6 @@ const AboutUs: React.FC = () => {
         { icon: <Zap size={24} />, title: 'Available 24/7', desc: '24/7 access to AI chatbot, mood tracking, and best resources.', color: '#2563EB' },
         { icon: <Globe size={24} />, title: 'Inclusive', desc: 'MindEase welcomes all students, alumni, and faculty because mental wellness matters at every stage.', color: '#EC4899' },
     ];
-    // Explicitly typed the TEAM data usage
-    const leader = TEAM.find((m: TeamMember) => m.isLeader)!;
-    const members = TEAM.filter((m: TeamMember) => !m.isLeader);
 
     return (
         <div className="min-h-screen" style={{ background: 'linear-gradient(160deg,#FFF5F7 0%,#FFE8ED 50%,#FFF0F3 100%)' }}>
@@ -187,56 +184,8 @@ const AboutUs: React.FC = () => {
                         </h2>
                     </motion.div>
                     
-                    <motion.div
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.75, delay: 0.1 }}
-                        className="relative rounded-[2.5rem] p-10 md:p-14 mb-10 overflow-hidden"
-                        style={{ background: 'rgba(255,255,255,0.70)', border: '2px solid rgba(212,97,122,0.30)', backdropFilter: 'blur(20px)', boxShadow: '0 24px 80px rgba(212,97,122,0.18)' }}
-                    >
-                        <div className="absolute top-6 right-6 flex items-center gap-2 px-4 py-2 rounded-full hidden sm:flex"
-                            style={{ background: 'linear-gradient(135deg, #D4617A, #C44A6A)', boxShadow: '0 4px 20px rgba(212,97,122,0.40)' }}>
-                            <Crown size={14} className="text-white fill-current" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Team Leader</span>
-                        </div>
-                        <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
-                            <div className="relative flex-shrink-0">
-                                <div className="w-44 h-44 rounded-[2rem] overflow-hidden"
-                                    style={{ border: '4px solid rgba(212,97,122,0.40)', boxShadow: '0 12px 40px rgba(212,97,122,0.25)' }}>
-                                    <img src={leader.image} alt={leader.name} className="w-full h-full object-cover" />
-                                </div>
-                                <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-lg hidden sm:flex"
-                                    style={{ background: '#D4617A', boxShadow: '0 4px 16px rgba(212,97,122,0.50)' }}>
-                                    👑
-                                </div>
-                            </div>
-                            <div className="flex-1 text-center md:text-left">
-                                <h2 className="text-3xl md:text-4xl font-black mb-1" style={{ color: '#3D1520' }}>{leader.name}</h2>
-                                <p className="text-base font-black mb-4" style={{ color: '#D4617A' }}>{leader.role}</p>
-                                <p className="text-base leading-relaxed mb-6 max-w-2xl" style={{ color: '#7A3545' }}>{leader.desc}</p>
-                                <div className="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
-                                    {leader.tags.map((t: string) => (
-                                        <span key={t} className="px-3 py-1 rounded-full text-xs font-black"
-                                            style={{ background: leader.light, color: leader.color, border: `1px solid ${leader.color}30` }}>{t}</span>
-                                    ))}
-                                </div>
-                                <div className="flex gap-3 justify-center md:justify-start">
-                                    {[{ icon: <Github size={16} />, href: leader.github }, { icon: <Linkedin size={16} />, href: leader.linkedin }, { icon: <Mail size={16} />, href: `mailto:${leader.email}` }].map((s, i) => (
-                                        <a key={i} href={s.href}
-                                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-                                            style={{ background: 'rgba(212,97,122,0.08)', border: '1.5px solid #F9C5CC', color: '#D4617A' }}
-                                            onMouseEnter={e => { e.currentTarget.style.background = '#D4617A'; e.currentTarget.style.color = 'white'; }}
-                                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(212,97,122,0.08)'; e.currentTarget.style.color = '#D4617A'; }}
-                                        >{s.icon}</a>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {members.map((m, i) => (
+                    <div className="flex flex-wrap justify-center gap-6">
+                        {TEAM.map((m, i) => (
                             <motion.div
                                 key={m.id}
                                 initial={{ opacity: 0, y: 40 }}
@@ -244,16 +193,22 @@ const AboutUs: React.FC = () => {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.65, delay: 0.2 + i * 0.1 }}
                                 whileHover={{ y: -8, scale: 1.02 }}
-                                className="relative rounded-[2rem] p-7 cursor-default overflow-hidden group"
-                                style={{ background: 'rgba(255,255,255,0.70)', border: '1.5px solid #F9C5CC', backdropFilter: 'blur(14px)', boxShadow: '0 8px 30px rgba(0,0,0,0.05)' }}
+                                onClick={() => setSelectedMember(m)}
+                                className="relative rounded-[2rem] p-7 cursor-pointer overflow-hidden group w-full sm:w-[calc(50%-1.5rem)] md:w-[calc(33.33%-1.5rem)] lg:w-[calc(25%-1.5rem)] max-w-[280px]"                                style={{ background: 'rgba(255,255,255,0.70)', border: '1.5px solid #F9C5CC', backdropFilter: 'blur(14px)', boxShadow: '0 8px 30px rgba(0,0,0,0.05)' }}
                                 onMouseEnter={e => { e.currentTarget.style.borderColor = m.color + '60'; e.currentTarget.style.boxShadow = `0 20px 60px ${m.color}22`; }}
                                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#F9C5CC'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.05)'; }}
                             >
                                 <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                     style={{ background: `linear-gradient(90deg, ${m.color}, #F4A0B0)` }} />
-                                <div className="w-20 h-20 rounded-2xl overflow-hidden mb-5 mx-auto"
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden mb-5 mx-auto relative"
                                     style={{ border: `3px solid ${m.color}40`, boxShadow: `0 6px 20px ${m.color}30` }}>
                                     <img src={m.image} alt={m.name} className="w-full h-full object-cover" />
+                                    {m.isLeader && (
+                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                                            style={{ background: m.color, color: 'white' }}>
+                                            👑
+                                        </div>
+                                    )}
                                 </div>
                                 <h3 className="text-lg font-black text-center mb-1" style={{ color: '#3D1520' }}>{m.name}</h3>
                                 <p className="text-xs font-black text-center mb-3" style={{ color: m.color }}>{m.role}</p>
@@ -267,7 +222,8 @@ const AboutUs: React.FC = () => {
                                 <div className="flex gap-2 justify-center">
                                     {[{ icon: <Github size={13} />, href: m.github }, { icon: <Linkedin size={13} />, href: m.linkedin }, { icon: <Mail size={13} />, href: `mailto:${m.email}` }].map((s, j) => (
                                         <a key={j} href={s.href}
-                                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-xs"
+                                            onClick={(e) => e.stopPropagation()} target="_blank" rel="noopener noreferrer"
+                                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all text-xs z-10 relative"
                                             style={{ background: `${m.color}10`, border: `1px solid ${m.color}30`, color: m.color }}
                                             onMouseEnter={e => { e.currentTarget.style.background = m.color; e.currentTarget.style.color = 'white'; }}
                                             onMouseLeave={e => { e.currentTarget.style.background = `${m.color}10`; e.currentTarget.style.color = m.color; }}
@@ -339,6 +295,77 @@ const AboutUs: React.FC = () => {
                     No signup fee · Good security · Cancel anytime
                 </p>
             </div>
+
+            {/* Team Member Modal */}
+            <AnimatePresence>
+                {selectedMember && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            className="absolute inset-0"
+                            style={{ background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(8px)' }}
+                            onClick={() => setSelectedMember(null)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 overflow-hidden shadow-2xl"
+                            style={{ 
+                                background: 'rgba(255,255,255,0.9)', 
+                                border: `2px solid ${selectedMember.color}40`,
+                                boxShadow: `0 24px 80px ${selectedMember.color}30`
+                            }}
+                        >
+                            <button 
+                                onClick={() => setSelectedMember(null)}
+                                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full transition-colors"
+                                style={{ background: 'rgba(0,0,0,0.05)', color: '#3D1520' }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                            >
+                                <X size={20} />
+                            </button>
+                            
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-32 h-32 rounded-[2rem] overflow-hidden mb-6 relative"
+                                    style={{ border: `4px solid ${selectedMember.color}40`, boxShadow: `0 12px 30px ${selectedMember.color}25` }}>
+                                    <img src={selectedMember.image} alt={selectedMember.name} className="w-full h-full object-cover" />
+                                    {selectedMember.isLeader && (
+                                        <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm"
+                                            style={{ background: selectedMember.color, color: 'white', boxShadow: `0 4px 10px ${selectedMember.color}50` }}>
+                                            👑
+                                        </div>
+                                    )}
+                                </div>
+                                <h2 className="text-3xl font-black mb-2" style={{ color: '#3D1520' }}>{selectedMember.name}</h2>
+                                <p className="text-base font-black mb-5" style={{ color: selectedMember.color }}>{selectedMember.role}</p>
+                                <p className="text-base leading-relaxed mb-6" style={{ color: '#7A3545' }}>{selectedMember.desc}</p>
+                                
+                                <div className="flex flex-wrap gap-2 justify-center mb-8">
+                                    {selectedMember.tags.map((t: string) => (
+                                        <span key={t} className="px-3 py-1.5 rounded-full text-xs font-black"
+                                            style={{ background: selectedMember.light, color: selectedMember.color }}>{t}</span>
+                                    ))}
+                                </div>
+                                
+                                <div className="flex gap-4 justify-center">
+                                    {[{ icon: <Github size={18} />, href: selectedMember.github }, { icon: <Linkedin size={18} />, href: selectedMember.linkedin }, { icon: <Mail size={18} />, href: `mailto:${selectedMember.email}` }].map((s, j) => (
+                                        <a key={j} href={s.href} target="_blank" rel="noopener noreferrer"
+                                            className="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
+                                            style={{ background: `${selectedMember.color}15`, border: `1.5px solid ${selectedMember.color}40`, color: selectedMember.color }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = selectedMember.color; e.currentTarget.style.color = 'white'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = `${selectedMember.color}15`; e.currentTarget.style.color = selectedMember.color; }}
+                                        >{s.icon}</a>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
